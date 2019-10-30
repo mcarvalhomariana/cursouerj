@@ -1,4 +1,5 @@
 
+
 ##___________________________________##
 ##      AULA 2: COLETA DE DADOS      ##
 ##___________________________________##
@@ -15,11 +16,13 @@ getwd() # saber o diretório de trabalho
 
 setwd("C:/Users/Mariana/Documents/R!/CursoR") # selecionar diretório
 
-install.packages("rtweet") #coletar dados do Twitter
+install.packages("rtweet", dependencies = T) #coletar dados do Twitter
 #https://cran.r-project.org/web/packages/twitteR/twitteR.pdf
 
-install.packages("janitor") #limpar dados
+install.packages("janitor", dependencies = T) #limpar dados
 #https://cran.r-project.org/web/packages/janitor/index.html
+
+install.packages("tidyverse", dependencies = T)
 
 library(rtweet)
 library(janitor)
@@ -35,9 +38,9 @@ library(tidyverse)
 # Autenticar
 
 token <- create_token(
-  app = "",
-  consumer_key = "",
-  consumer_secret = "")
+  app = "nome do usuario",
+  consumer_key = "app key",
+  consumer_secret = "app key secret")
 
 help("search_tweets")
 
@@ -55,10 +58,12 @@ seguecrivella <- get_followers("MCrivella", retryonratelimit = T) #não rodar, o
 crivellasegue <- get_friends("MCrivella", retryonratelimit = T)
 
 #Buscar com data e idioma
-chile <- search_tweets("chile since:2019-10-25 until:2019-10-27 lang:pt", n=200, include_rts = T, token=token)
+chile <- search_tweets("chile since:2019-10-25 until:2019-10-27 lang:pt", n=1000, include_rts = T, token=token)
 
 
 #Usuários mais engajados na postagem de tweets
+
+#atalho para pipe: ctrl+shift+M
 
 #tabela
 usuarios <- data.frame(table(chile$screen_name)) %>%
@@ -69,7 +74,7 @@ usuarios <- data.frame(table(chile$screen_name)) %>%
 
 
 #gráfico
-ggplot(usuarios, aes(reorder(Perfil, N_tweets), N_tweets)) +
+ggplot(usuarios, aes(reorder(Usuário, N), N)) +
   geom_bar(stat = "identity", fill= "deeppink2") +
   coord_flip()
 
@@ -121,15 +126,18 @@ chile%>%
 
 #quais as hashtags mais tuitadas?
 
-chile %>%
+chilehashtags <- chile %>%
   unnest(hashtags) %>% # unnest transforma colunas-lista em novas linhas
   group_by(hashtags) %>%
   summarise(n = n()) %>% #contar o número de hashtags
   na.omit()  %>% # eliminar os espaços vazios
   arrange(-n) %>%
-  head(10) %>%
+  head(10)
+
+chilehashtags %>%
   ggplot(aes(reorder(hashtags, n), n)) +
-  geom_bar(stat = "identity", fill="coral1") + coord_flip()
+  geom_bar(stat = "identity", fill="coral1") +
+  coord_flip()
 
 
 #cores no R: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
@@ -157,7 +165,6 @@ chile %>%
 #Quais os posts mais retweetados?
 
 #Fazer um gráfico de barras com os retweets mais frequentes.
-
 
 
 
